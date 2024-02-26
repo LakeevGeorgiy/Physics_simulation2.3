@@ -1,17 +1,14 @@
 function magnitInduction(current, coordinates, x, y){
 	const mu = 4 * Math.PI * Math.pow(10, -7);
-	const radius = distanceBetweenPoints(coordinates[0], coordinates[1], x, y) / 100;
+	const radius = distanceBetweenPoints(coordinates[0], coordinates[1], x, y);
 	let B = (mu * current) / (2 * Math.PI * radius); 
-	console.log("magnit induction: ", B);
 	return B;
 
 }
 
 function vectorMagnitInduction(current, coordinates, x, y){
 	const B = magnitInduction(current, coordinates, x, y);
-	const k = lineCoefficient(coordinates[0], coordinates[1], x, y)[0];
-	let vectorB = coordinatesNormalVector(k, x, y, B);
-	vectorB = perpendicularVector(coordinates[0], coordinates[1], x, y, B);
+	let vectorB = perpendicularVector(coordinates[0], coordinates[1], x, y, 10);
 	vectorB[0] -= x;
 	vectorB[1] -= y;
 	return vectorB;
@@ -19,53 +16,82 @@ function vectorMagnitInduction(current, coordinates, x, y){
 
 function CheckForCollision(x, y, coordinates){
 	for (let i = 0; i < coordinates.length; ++i){
-		if (coordinates[i][0] - 7 < x && x < coordinates[i][0] + 7 && coordinates[i][1] - 7 < y && y < coordinates[i][1] + 7)
+		if (coordinates[i][0] - 15 < x && x < coordinates[i][0] + 15 && coordinates[i][1] - 15 < y && y < coordinates[i][1] + 15)
 			return true;
 	}
 	return false;
 }
 
+function Correction(vector, x, y){
+
+	vector[0] = Math.abs(vector[0]);
+	vector[1] = Math.abs(vector[1]);
+
+	if (y > width / 2) {
+		vector[0] = -1 * vector[0];
+	}
+	if (x < height / 2){
+		vector[1] = -1 * vector[1];
+	}
+	return vector;
+}
+
+function Reverse(vector){
+	vector[0] = -vector[0];
+	vector[1] = -vector[1];
+	return vector;
+}
+
+function ChangeCoordinates(x, y){
+	return [(x + 8) * 100, (y + 5) * 150, 0];
+}
+
 function plotLines(current, currentCoordinates){
-	for (let x = 0; x < width; x += 35){
-		for (let y = 0; y < height; y += 35){
+
+
+	for (let x = 0; x < height; x += 35){
+		for (let y = 0; y < width; y += 35){
 
 			if (CheckForCollision(x, y, currentCoordinates)){
 				continue;
 			}
 
-			let vectorB = [0, 0];
+			let vectorB = [0, 0, 0];
+			let direction = [x, y, 0];
 
 			for (let i = 0; i < currentCoordinates.length; ++i){
 
-				let currentB = vectorMagnitInduction(current[i], currentCoordinates[i], x, y);
-				vectorB = vectorSum(vectorB, currentB);
+				let currentVector = [currentCoordinates[i][0], currentCoordinates[i][1], 0];
+				let distance = Math.pow(distanceBetweenVectors3D(direction, currentVector), 3);
+
+				let partX = current[i] * (currentCoordinates[i][1] - y) / distance;
+				let partY = -current[i] * (currentCoordinates[i][0] - x) / distance;
+
+				vectorB[0] += partX;
+				vectorB[1] += partY;
 
 			}
 
 			vectorB = normalizedVector(vectorB, 15);
-			//console.log("vector B", x, y, vectorB);
-
-			context.beginPath();
-			context.moveTo(x, y);
-			context.lineWidth = 2;
-			context.lineTo(x + vectorB[0], y + vectorB[1]);
-			context.strokeStyle = "#FFFFFF";
-			context.stroke();
-
-			// context.beginPath();
-			// context.moveTo(x, y);
-			// context.lineWidth = 1;
-			// context.lineTo(currentCoordinates[0][0], currentCoordinates[0][1]);
-			// context.stroke();
-
-			// context.beginPath();
-			// context.moveTo(x + vectorB[0], y + vectorB[1]);
-			// context.lineWidth = 1;
-			// context.lineTo(currentCoordinates[0][0], currentCoordinates[0][1]);
-			// context.stroke();
-
+			canvas_arrow(context, x, y, x + vectorB[0], y + vectorB[1]);
 		}
 	}
+}
+
+function canvas_arrow(context, fromx, fromy, tox, toy) {
+	var headlen = 5;
+	var dx = tox - fromx;
+	var dy = toy - fromy;
+	var angle = Math.atan2(dy, dx);
+	context.beginPath()
+	context.lineWidth = 3;
+	context.moveTo(fromx, fromy);
+	context.lineTo(tox, toy);
+	context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+	context.moveTo(tox, toy);
+	context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+	context.strokeStyle = "#FFFFFF";
+	context.stroke();
 }
 
 let dl = 1;
@@ -86,13 +112,6 @@ function createCurrentSource(e) {
     if (cntCurrentSources == 4)
         return;    
 
-    // var d=document.createElement("label");
-    // d.id=e.id;
-    // d.onclick="a(10)";
-    // d.innerHTML="welcome";
-	// d.setAttribute("style", "color: white");
-    // document.body.appendChild(d);
-
 	let temp = prompt("Введите значение силы тока: ", 1);
 	if (temp.replace(/\s/g, '').length === 0 || isNaN(temp)) {
 		alert('Нужно писать число!');
@@ -108,10 +127,8 @@ function createCurrentSource(e) {
 
 	current[cntCurrentSources - 1] = parseInt(temp);
 	currentCoordinates[cntCurrentSources - 1] =  [e.clientX, e.clientY];
-	//console.log(currentCoordinates[cntCurrentSources - 1]);
 	clearAllLines(currentCoordinates);
 	plotLines(current, currentCoordinates);
-	//plotTriangle(36, 34, 123, 570);
 }
  
 

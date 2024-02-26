@@ -2,6 +2,10 @@ function distanceBetweenPoints(x1, y1, x2, y2){
 	return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
 }
 
+function distanceBetweenVectors3D(lhs, rhs){
+	return Math.sqrt(Math.pow(lhs[0] - rhs[0], 2) + Math.pow(lhs[1] - rhs[1], 2) + Math.pow(lhs[2] - rhs[2], 2));
+}
+
 function lineCoefficient(x0, y0, x1, y1){
     let k = (y1 - y0) / (x1 - x0);
     let b = y0 - k * x0;
@@ -27,7 +31,7 @@ function vectorLength(vector){
 
 function normalizedVector(vector, length){
 	const currentLength = vectorLength(vector);
-	return [vector[0]  * length / currentLength, vector[1] * length / currentLength ];
+	return [vector[0]  * length / currentLength, vector[1] * length / currentLength, vector[2] * length / currentLength ];
 }
 
 function perpendicularVector(x0, y0, x1, y1, l){
@@ -46,7 +50,9 @@ function perpendicularVector(x0, y0, x1, y1, l){
 	const c2 = Math.pow(l, 2) * Math.pow(y, 2);
 
 	const D = 4 * c1 * c2;
-	let x2 = (2 * c1 * x1 + Math.sqrt(D)) / (2 * c1);
+	let x2 = (2 * c1 * x1 - Math.sqrt(D)) / (2 * c1);
+	if (y1 < width / 2)
+		x2 = (2 * c1 * x1 + Math.sqrt(D)) / (2 * c1);
 	let y2 = (y1 * y - x2 * x + x1 * x) / y;
 	return [x2, y2];
 }
