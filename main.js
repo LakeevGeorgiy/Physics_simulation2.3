@@ -49,8 +49,8 @@ function ChangeCoordinates(x, y){
 function plotLines(current, currentCoordinates){
 
 
-	for (let x = 0; x < height; x += 35){
-		for (let y = 0; y < width; y += 35){
+	for (let x = 0; x < width; x += 35){
+		for (let y = 0; y < height; y += 35){
 
 			if (CheckForCollision(x, y, currentCoordinates)){
 				continue;
