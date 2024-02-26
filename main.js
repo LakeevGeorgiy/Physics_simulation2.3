@@ -64,8 +64,8 @@ function plotLines(current, currentCoordinates){
 				let currentVector = [currentCoordinates[i][0], currentCoordinates[i][1], 0];
 				let distance = Math.pow(distanceBetweenVectors3D(direction, currentVector), 3);
 
-				let partX = current[i] * (currentCoordinates[i][1] - y) / distance;
-				let partY = -current[i] * (currentCoordinates[i][0] - x) / distance;
+				let partX = -current[i] * (currentCoordinates[i][1] - y) / distance;
+				let partY = current[i] * (currentCoordinates[i][0] - x) / distance;
 
 				vectorB[0] += partX;
 				vectorB[1] += partY;
